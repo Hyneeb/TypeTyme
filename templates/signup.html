@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        pass = false
+        window.pass = pass
+    </script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>TypeTyme</title>
+    <meta name="description" content="sign up today!">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../static/signup.css">
+</head>
+<body>
+    <div class="form-box">
+        <form id = "form">
+            <span class="title">Sign up</span>
+            <span class="subtitle">Create a free account with your email.</span>
+            <div class="form-container">
+                <input id = "username" type="text" class="input" placeholder="Username" required>
+                <input id = "email" type="email" class="input" placeholder="Email" required>
+                <input id = "password" type="password" class="input" placeholder="Password" required>
+                <input id = "confirm" type="password" class = "input" placeholder="Confirm Password" required>
+            </div>
+            <button>Sign up</button>
+        </form>
+        <div class="form-section">
+            <p>Have an account? <a href="/login.html">Log in</a> </p>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById('form')
+        form.addEventListener('submit', function(event){event.preventDefault();
+        if (document.getElementById("password").value == document.getElementById('confirm').value){
+        pass = true
+        }
+        else{
+            alert("passwords don't match!")
+            return;
+        }
+        const formdata = {
+            username: document.getElementById('username').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById("password").value
+        }
+        fetch('/signup', {method: 'POST', headers:{
+            'Content-Type': 'application/json'
+        }, body: JSON.stringify(formdata)})
+        .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                alert(data.message); // Alert the success message
+                if (data.value){
+                    sessionStorage.setItem('user', 'true');
+                    sessionStorage.setItem('acc', data.name)
+                    // sessionStorage.setItem('wins', 0)
+                    // sessionStorage.setItem('WPM', 0)
+                    window.location.href = '/home.html';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

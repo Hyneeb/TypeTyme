@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        var first = true
+        var place = true
+        var user = sessionStorage.getItem('user') === 'true';
+    </script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>TypeTyme</title>
+    <meta name="description" content="Test how fast you can type today!">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../static/home.css">
+</head>
+<body>
+    <div id="bar">
+        <nav>
+            <a class = "n" id = "transitio" href = "signup.html"> Sign Up </a>
+        </nav>
+    </div>
+    <div id="Intro">
+        Race to your hearts content!
+    </div>
+    <div id="clock">
+        <h3 id = timer>120</h3>
+    </div>
+    <div id="myarea">
+        <h3 id="promt">hi</h3>
+        <button onclick="run()" id="starter">
+        <span id = "started">GAME ON</span>
+        </button>
+    </div>
+    <div id="playbox">
+        <input type = "text" id="where-one-plays" placeholder="Goodluck"></textarea>
+    </div>
+    <div id="writing-back"> 
+        <div id = 'writing' > Your Writing Will Be Displayed Here</div>
+    </div>
+    <script>
+        if (user){
+            const z = document.getElementById('transitio')
+            z.innerHTML = "My account"
+            z.href = '/account.html'
+        }
+    </script>
+    <script type="importmap">
+        {
+          "imports": {
+            "@google/generative-ai": "https://esm.run/@google/generative-ai"
+          }
+        }
+      </script>
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
+
+        // Fetch your API_KEY
+        const API_KEY = "YOUR-API-KEY";
+
+        // Access your API key
+        const genAI = new GoogleGenerativeAI(API_KEY);
+
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        window.run = async function run() {
+            if (first){
+                let topics = ['fish', 'mammals', 'soccker', 'teams', 'politics', 'dragonballz', 'families', 'math', 'Breaking Bad', "Sword Art Online", "Tiktok", "Youtube", "Movies"]
+                let randomIndex = Math.floor(Math.random() * topics.length)
+                const p1 = "write 1 sentence about the following topic, with variation from how you would usually do it if given this exact prompt: "
+                const prompt = p1 + topics[randomIndex]
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const text = response.text();
+                console.log(text);
+                var words = text.split(' ');
+                window.words = words;
+                var len = words.length
+                window.len = len
+                var curr = words.shift()
+                window.curr = curr
+                document.getElementById("promt").innerHTML = curr;
+                document.getElementById("where-one-plays").placeholder = curr;
+                const x = setInterval(() => timer(x), 1000);
+                window.x = x
+            }
+            first = false
+        }
+    </script>
+    <script src = "../static/typing.js"> </script>
+    <script> 
+        const textarea = document.getElementById("where-one-plays");
+
+        // Add event listener to the textarea
+        textarea.addEventListener("keydown", function(event) {
+            if (event.key === " ") { 
+                event.preventDefault(); 
+                // Call the function to handle submission
+                if (check_win()){
+                    clearInterval(x);
+                    const minutes =  (+document.getElementById('timer').innerHTML)/60
+                    const wordslen = (document.getElementById('writing').innerText.length)/5;
+                    const wpm = wordslen/minutes
+                    console.log(wpm)
+                    finish();
+                    fetch('/home', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({'wins': 1, 'name': sessionStorage.getItem('acc'), 'wpm': wpm })
+            })
+                }
+                handleSubmit();
+                
+            }
+        });
+
+        // Function to handle submission logic
+        function handleSubmit() {
+            if (check_win() && document.getElementById("writing")){
+                const hehe = document.getElementById('writing').innerText || '';
+                document.getElementById('writing').innerText = hehe + words[0]
+            }
+            const userInput = textarea.value.trim();
+            if (userInput && userInput == curr) {
+                // Display the user input in the writing-back area
+                if (place){
+                    document.getElementById('writing').innerText = userInput
+                    place = false
+                }
+                else{
+                const hehe = document.getElementById('writing').innerText || '';
+                document.getElementById('writing').innerText = hehe + ' '+  userInput;
+                }
+                curr = words.shift();
+                document.getElementById("promt").innerHTML = curr;
+                document.getElementById("where-one-plays").placeholder = curr;
+            }
+
+                // Clear the textarea
+                textarea.value = '';
+                console.log('hi')
+                if (check_win()){
+                    clearInterval(x);
+                    const minutes =  (+document.getElementById('timer').innerHTML)/60
+                    const wordslen = (document.getElementById('writing').innerText.length)/5;
+                    const wpm = wordslen/minutes
+                    console.log(wpm)
+                    finish();
+                    fetch('/home', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({'wins': 1, 'name': sessionStorage.getItem('acc'), 'wpm': wpm })
+            })
+                }
+
+                
+            }
+        
+    </script>
+</body>
+</html>

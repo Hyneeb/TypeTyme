@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>My Account</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../static/account.css">
+    </head>
+    <body>
+        <div id="user-stats">
+            <h1 id = 'header'>User's Stats</h1>
+            <p id ='wins'><strong>Wins:</strong> <span id="win">0</span></p>
+            <p id ='stats'><strong>Words Per Minute (WPM):</strong> <span id="wpm">0</span></p>
+        </div>
+        <script>
+        const name = sessionStorage.getItem('acc');
+        if (name) {
+            fetch('/account', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({'name': name })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const wins = data.wins;
+                const WPM = data.WPM
+                if (data.value){
+                document.getElementById('win').innerHTML = wins;
+                document.getElementById('wpm').innerHTML = WPM;
+                const h = document.getElementById('header');
+                var header = h.innerText;
+                header = header.replace('User', name);
+                h.innerText = header;}
+                else{
+                    alert('Error has occured')
+                }
+            });
+        }
+        </script>
+    </body>
+</html>
